@@ -103,7 +103,7 @@ export default function Phishing() {
         </View>
 
         <View style={styles.tipsCard}>
-          <Text style={styles.tipsTitle}>Security Tips</Text>
+          <Text style={styles.tipsTitle}>🛡️ Security Tips</Text>
           <Text style={styles.tip}>• Never share passwords or sensitive info via email/SMS</Text>
           <Text style={styles.tip}>• Verify sender identity through official channels</Text>
           <Text style={styles.tip}>• Hover over links to check actual destination</Text>
@@ -204,14 +204,14 @@ const styles = StyleSheet.create({
   analyzeBtnDisabled: { backgroundColor: '#94A3B8' },
 
   tipsCard: {
-    backgroundColor: '#F8FAFF',
+    backgroundColor: '#c8dcfa',
     borderRadius: 12,
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#E6EEF8',
   },
-  tipsTitle: { fontWeight: '700', marginBottom: 8, color: '#0F172A' },
+  tipsTitle: { fontWeight: '700', marginBottom: 8, color: '#367cec' },
   tip: { color: '#475569', marginBottom: 4, fontSize: 13 },
 
   recent: { marginTop: 4 },
