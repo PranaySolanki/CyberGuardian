@@ -8,7 +8,10 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Modal, 
+  ActivityIndicator,
 } from 'react-native'
+import { analyzePhisingAttempt } from '@/services/gemini'
 
 const { width } = Dimensions.get('window')
 
@@ -42,28 +45,33 @@ export default function Phishing() {
   const [activeTab, setActiveTab] = useState<Tab>('Email')
   const [text, setText] = useState('')
   const [scans, setScans] = useState<Scan[]>(initialScans)
+  const [loading, setLoading] = useState(false);
 
-  const analyze = () => {
+  const analyze = async() => {
     if (!text.trim()){
       const emptyInputAlert = 'Please enter some content to analyze.'
       alert(emptyInputAlert)
       return 
-    }else{
-    router.push('/pages/phishing/scan_result')
     }
-    // const base = Math.min(80, Math.max(5, Math.floor(text.length / 2)))
-    // const random = Math.floor(Math.random() * 20)
-    // const score = Math.min(99, base + random)
-    // const risk: Scan['risk'] = score > 75 ? 'HIGH' : score > 40 ? 'MEDIUM' : 'LOW'
-    // const newScan: Scan = {
-    //   id: String(Date.now()),
-    //   title: text.length ? text.slice(0, 60) : `${activeTab} content`,
-    //   time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    //   risk,
-    //   score,
-    // }
-    // setScans(prev => [newScan, ...prev])
-    // setText('')
+    setLoading(true);
+  try {
+    const analysis = await analyzePhisingAttempt(text, activeTab.toUpperCase() as any);
+    setLoading(false);
+    setText('');
+    // Navigate to results page with the real data
+    router.push({
+      pathname: '/pages/phishing/scan_result',
+      params: { 
+        risk: analysis.risk, 
+        score: analysis.score, 
+        reason: analysis.reason,
+        content: text.slice(0, 200) + '...'
+      }
+    });
+  } catch (error) {
+    const errorMessage = 'An error occurred during analysis';
+    alert(errorMessage);
+  } 
   }
 
   const renderTab = (tab: Tab) => (
@@ -100,7 +108,7 @@ export default function Phishing() {
             textAlignVertical="top"
           />
 
-          <TouchableOpacity style={styles.analyzeBtn} onPress={analyze}>
+          <TouchableOpacity style={styles.analyzeBtn} disabled={loading} onPress={analyze}>
             <Text style={styles.analyzeBtnText}>Analyze Content</Text>
           </TouchableOpacity>
         </View>
@@ -151,6 +159,16 @@ export default function Phishing() {
             ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
             contentContainerStyle={{ paddingBottom: 40 }}
           />
+
+        {/* --- LOADING OVERLAY --- */}
+      <Modal transparent visible={loading} animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color="#2563EB" />
+            <Text style={styles.loaderText}>Analyzing with AI...</Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -240,5 +258,27 @@ const styles = StyleSheet.create({
   scanMeta: { alignItems: 'flex-end', marginLeft: 8 },
   riskBadge: { borderWidth: 1, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 16, fontSize: 12 },
   score: { marginTop: 6, fontWeight: '700' },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dims the background
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderContainer: {
+    backgroundColor: 'white',
+    padding: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  loaderText: {
+    marginTop: 15,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1E293B',
+  },
 })
 
