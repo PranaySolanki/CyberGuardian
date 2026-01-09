@@ -52,7 +52,7 @@ export default function AppDetection() {
       return;
     }
 
-    router.push("/pages/scan_result");
+    router.push("/pages/app_detection/scan_result");
   };
 
   const renderItem = ({ item }: { item: AppItem }) => {
