@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Alert,
   FlatList,
   StyleSheet,
   Text,
@@ -28,6 +30,7 @@ const mockApps: AppItem[] = [
 export default function AppDetection() {
   // ✅ STATE MUST BE HERE (before return)
   const [selectedApk, setSelectedApk] = useState<string | null>(null);
+  const router = useRouter();
 
   const pickApk = async () => {
     try {
@@ -43,6 +46,15 @@ export default function AppDetection() {
     }
   };
 
+  const handleScan = () => {
+    if (!selectedApk) {
+      Alert.alert("APK Required", "Please add APK first ⚠️");
+      return;
+    }
+
+    router.push("/pages/scan_result");
+  };
+
   const renderItem = ({ item }: { item: AppItem }) => {
     return (
       <View style={styles.card}>
@@ -53,7 +65,7 @@ export default function AppDetection() {
           <Text style={styles.appName}>{item.name}</Text>
         </View>
 
-        <TouchableOpacity style={styles.scanBtn}>
+        <TouchableOpacity style={styles.scanBtn} onPress={handleScan}>
           <Text style={styles.scanText}>Scan</Text>
         </TouchableOpacity>
       </View>
@@ -81,6 +93,14 @@ export default function AppDetection() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* ✅ SCAN BUTTON - Appears after APK is selected */}
+      {selectedApk && (
+        <TouchableOpacity style={styles.scanApkButton} onPress={handleScan}>
+          <Ionicons name="shield-checkmark" size={20} color="#FFFFFF" />
+          <Text style={styles.scanApkButtonText}>Scan Selected APK</Text>
+        </TouchableOpacity>
+      )}
 
       {/* ✅ APP LIST */}
       <FlatList
@@ -147,6 +167,29 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "600",
     fontSize: 13,
+  },
+
+  // ✅ SCAN APK BUTTON
+  scanApkButton: {
+    backgroundColor: "#10B981",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 18,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+
+  scanApkButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: 16,
+    marginLeft: 8,
   },
 
   // ✅ CARD UI
